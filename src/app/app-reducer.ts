@@ -42,20 +42,6 @@ export const initializeAppTC = () => (dispatch: AppDispatch) => {
     })
 }
 
-
-/*export const appReducer = (state: InitialStateType = initialState, action: ActionsType): InitialStateType => {
-    switch (action.type) {
-        case 'APP/SET-STATUS':
-            return {...state, status: action.status}
-        case 'APP/SET-ERROR':
-            return {...state, error: action.error}
-        case 'APP/SET-IS-INITIALIZED':
-            return {...state, isInitialized: action.value}
-        default:
-            return {...state}
-    }
-}*/
-
 export type InitialStateType = {
     // происходит ли сейчас взаимодействие с сервером
     status: RequestStatusType
@@ -80,3 +66,15 @@ export const setAppInitializedAC = (value: boolean) => ({type:
     | SetAppErrorActionType
     | SetAppStatusActionType
     | ReturnType<typeof setAppInitializedAC>*/
+/*export const appReducer = (state: InitialStateType = initialState, action: ActionsType): InitialStateType => {
+    switch (action.type) {
+        case 'APP/SET-STATUS':
+            return {...state, status: action.status}
+        case 'APP/SET-ERROR':
+            return {...state, error: action.error}
+        case 'APP/SET-IS-INITIALIZED':
+            return {...state, isInitialized: action.value}
+        default:
+            return {...state}
+    }
+}*/

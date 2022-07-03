@@ -22,8 +22,8 @@ const slice = createSlice({
                     tasks.splice(index, 1)
             }
         },
-        addTaskAC:(state, action:PayloadAction<{task: TaskType}>)=>{
-            state[action.payload.task.todoListId].unshift(action.payload.task)
+        addTaskAC:(state, action:PayloadAction<TaskType>)=>{
+            state[action.payload.todoListId].unshift(action.payload)
         },
         updateTaskAC:(state, action:PayloadAction<{taskId: string, model: UpdateDomainTaskModelType, todolistId: string}>)=>{
             const tasks = state[action.payload.todolistId]
@@ -50,18 +50,10 @@ const slice = createSlice({
         })
 
     }
-    /*extraReducers:{
-        [addTodolistAC.type]:(state, action:PayloadAction<{}>)=>{},
-        [removeTodolistAC.type]:(state, action:PayloadAction<{}>)=>{},
-        [setTodolistsAC.type]:(state, action:PayloadAction<{}>)=>{},
-    }*/
 })
 
 export const tasksReducer = slice.reducer
 export const {removeTaskAC,addTaskAC,updateTaskAC,setTasksAC} = slice.actions
-
-
-
 
 // thunks
 export const fetchTasksTC = (todolistId: string) => (dispatch: AppDispatch) => {
@@ -86,7 +78,7 @@ export const addTaskTC = (title: string, todolistId: string) => (dispatch: AppDi
         .then(res => {
             if (res.data.resultCode === 0) {
                 const task = res.data.data.item
-                const action = addTaskAC({task})
+                const action = addTaskAC(task)
                 dispatch(action)
                 dispatch(setAppStatusAC({status: "succeeded"}))
             } else {

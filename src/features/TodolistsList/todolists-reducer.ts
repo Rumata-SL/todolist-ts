@@ -1,5 +1,4 @@
 import {todolistsAPI, TodolistType} from "../../api/todolists-api"
-import {Dispatch} from "redux"
 import {RequestStatusType, setAppStatusAC,} from "../../app/app-reducer"
 import {handleServerNetworkError} from "../../utils/error-utils"
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
@@ -105,6 +104,10 @@ export const changeTodolistTitleTC = (id: string, title: string) => {
     }
 }
 
+export type TodolistDomainType = TodolistType & {
+    filter: FilterValuesType
+    entityStatus: RequestStatusType
+}
 // types
 /*export type AddTodolistActionType = ReturnType<typeof addTodolistAC>;
 export type RemoveTodolistActionType = ReturnType<typeof removeTodolistAC>;
@@ -117,10 +120,7 @@ export type SetTodolistsActionType = ReturnType<typeof setTodolistsAC>;*/
     | SetTodolistsActionType
     | ReturnType<typeof changeTodolistEntityStatusAC>*/
 
-export type TodolistDomainType = TodolistType & {
-    filter: FilterValuesType
-    entityStatus: RequestStatusType
-}
+
 // type ThunkDispatch = Dispatch<ActionsType>
 // type ThunkDispatch = Dispatch<ActionsType | SetAppStatusActionType | SetAppErrorActionType>
 
