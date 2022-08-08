@@ -6,6 +6,11 @@ import {loginTC} from './auth-reducer'
 import {AppRootStateType} from '../../app/store'
 import { Redirect } from 'react-router-dom'
 
+type FormValuesType ={
+    email: string
+    password: string
+    rememberMe: boolean
+}
 export const Login = () => {
     const dispatch = useDispatch()
 
@@ -30,8 +35,10 @@ export const Login = () => {
             password: '',
             rememberMe: false
         },
-        onSubmit: values => {
-            dispatch(loginTC(values));
+        onSubmit: async (values, formikHelpers ) => {
+            const res = await dispatch(loginTC(values));
+            formikHelpers.setFieldError("email", "dfbdfb")
+
         },
     })
 
@@ -64,7 +71,7 @@ export const Login = () => {
                             margin="normal"
                             {...formik.getFieldProps("email")}
                         />
-                        {formik.errors.email ? <div>{formik.errors.email}</div> : null}
+                        {formik.errors.email ? <div style={{color:"red"}}>{formik.errors.email}</div> : null}
                         <TextField
                             type="password"
                             label="Password"

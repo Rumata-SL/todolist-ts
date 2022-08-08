@@ -26,6 +26,9 @@ export type RootReducerType = typeof rootReducer
 export type AppRootStateType = ReturnType<RootReducerType>
 
 export type AppDispatch = typeof store.dispatch
+
+
+
 export const useAppDispatch: () => AppDispatch = useDispatch
 
 // а это, чтобы можно было в консоли браузера обращаться к store в любой момент
