@@ -11,7 +11,7 @@ import {
     UpdateTaskModelType
 } from "../../api/todolists-api"
 
-import {AppDispatch, AppRootStateType} from "../../app/store"
+import {AppDispatchType, AppRootStateType} from "../../app/store"
 import {setAppStatusAC,} from "../../app/app-reducer"
 import {
     handleServerAppError,
@@ -97,7 +97,7 @@ export const {addTaskAC, updateTaskAC} = slice.actions
 }*/
 
 
-export const addTaskTC = (title: string, todolistId: string) => (dispatch: AppDispatch) => {
+export const addTaskTC = (title: string, todolistId: string) => (dispatch: AppDispatchType) => {
     dispatch(setAppStatusAC({status: "loading"}))
     todolistsAPI.createTask(todolistId, title)
         .then(res => {
@@ -115,7 +115,7 @@ export const addTaskTC = (title: string, todolistId: string) => (dispatch: AppDi
         })
 }
 export const updateTaskTC = (taskId: string, domainModel: UpdateDomainTaskModelType, todolistId: string) =>
-    (dispatch: AppDispatch, getState: () => AppRootStateType) => {
+    (dispatch: AppDispatchType, getState: () => AppRootStateType) => {
         const state = getState()
         const task = state.tasks[todolistId].find(t => t.id === taskId)
         if (!task) {

@@ -1,9 +1,9 @@
-import {tasksReducer} from '../features/TodolistsList/tasks-reducer';
-import {todolistsReducer} from '../features/TodolistsList/todolists-reducer';
-import {combineReducers} from 'redux'
-import thunkMiddleware from 'redux-thunk'
-import {appReducer} from './app-reducer'
-import {authReducer} from '../features/Login/auth-reducer'
+import {tasksReducer} from "../features/TodolistsList/tasks-reducer";
+import {todolistsReducer} from "../features/TodolistsList/todolists-reducer";
+import {combineReducers} from "redux"
+import thunkMiddleware from "redux-thunk"
+import {appReducer} from "./app-reducer"
+import {authReducer} from "../features/Login/auth-reducer"
 import {configureStore} from "@reduxjs/toolkit";
 import {useDispatch} from "react-redux";
 
@@ -25,11 +25,13 @@ export const store = configureStore({
 export type RootReducerType = typeof rootReducer
 export type AppRootStateType = ReturnType<RootReducerType>
 
-export type AppDispatch = typeof store.dispatch
+// export type AppRootActionsType =
+// export type ThunkType<ReturnType = void> = ThunkAction<ReturnType, AppRootStateType, unknown, Action>
 
+export type AppDispatchType = typeof store.dispatch
 
+export const useAppDispatch = () => useDispatch<AppDispatchType>()
 
-export const useAppDispatch: () => AppDispatch = useDispatch
 
 // а это, чтобы можно было в консоли браузера обращаться к store в любой момент
 // @ts-ignore
