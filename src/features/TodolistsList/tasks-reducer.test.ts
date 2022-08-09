@@ -66,7 +66,7 @@ test('correct task should be added to correct array', () => {
     expect(endState["todolistId1"].length).toBe(3);
     expect(endState["todolistId2"].length).toBe(4);
     expect(endState["todolistId2"][0].id).toBeDefined();
-    expect(endState["todolistId2"][0].title).toBe("juce");
+    expect(endState["todolistId2"][0].title).toBe("juice");
     expect(endState["todolistId2"][0].status).toBe(TaskStatuses.New);
 });
 test('status of specified task should be changed', () => {
@@ -114,9 +114,9 @@ test('propertry with todolistId should be deleted', () => {
 
     const keys = Object.keys(endState);
 
-    expect(keys.length).toBe(2);
-    expect(endState["todolistId2"]).not.toBeUndefined();
-    // expect(endState["todolistId2"]).toBeDefined();
+    expect(keys.length).toBe(1);
+    // expect(endState["todolistId2"]).not.toBeUndefined();
+    expect(endState["todolistId2"]).not.toBeDefined();
 });
 
 test('empty arrays should be added when we set todolists', () => {
