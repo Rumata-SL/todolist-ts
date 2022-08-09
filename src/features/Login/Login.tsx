@@ -1,16 +1,16 @@
 import React from "react"
 import {
+    Button,
     Checkbox,
     FormControl,
     FormControlLabel,
     FormGroup,
     FormLabel,
-    TextField,
-    Button,
-    Grid
+    Grid,
+    TextField
 } from "@material-ui/core"
 import {useFormik} from "formik"
-import {useDispatch, useSelector} from "react-redux"
+import {useSelector} from "react-redux"
 import {loginTC} from "./auth-reducer"
 import {AppRootStateType, useAppDispatch} from "../../app/store"
 import {Redirect} from "react-router-dom"
