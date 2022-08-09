@@ -1,32 +1,89 @@
 import {todolistsAPI, TodolistType} from "../../api/todolists-api"
 import {RequestStatusType, setAppStatusAC,} from "../../app/app-reducer"
 import {handleServerNetworkError} from "../../utils/error-utils"
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {AppDispatchType} from "../../app/store";
+import {createAsyncThunk, createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {AxiosError} from "axios";
+
+
 export type FilterValuesType = "all" | "active" | "completed";
-const initialState: Array<TodolistDomainType> = []
+
+export const fetchTodolistsTC = createAsyncThunk("todolists/fetchTodolists", async (param, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatusAC({status: "loading"}))
+    const res = await todolistsAPI.getTodolists()
+    try {
+        // thunkAPI.dispatch(setTodolistsAC({todolists:res.data}))
+        thunkAPI.dispatch(setAppStatusAC({status: "succeeded"}))
+        return {todolists: res.data}
+    } catch (e) {
+        const error = e as Error | AxiosError<{ error: string }>
+        handleServerNetworkError(error, thunkAPI.dispatch);
+        return thunkAPI.rejectWithValue(null)
+    }
+})
+
+export const removeTodolistTC = createAsyncThunk("todolists/removeTodolist", async (param: { todolistId: string }, thunkAPI) => {
+    //изменим глобальный статус приложения, чтобы вверху полоса побежала
+    thunkAPI.dispatch(setAppStatusAC({status: "loading"}))
+    //изменим статус конкретного тудулиста, чтобы он мог задизеблить что надо
+    thunkAPI.dispatch(changeTodolistEntityStatusAC({
+        id: param.todolistId,
+        status: "loading"
+    }))
+    const res = await todolistsAPI.deleteTodolist(param.todolistId)
+    try {
+        // thunkAPI.dispatch(removeTodolistAC({id: param.todolistId}))
+        //скажем глобально приложению, что асинхронная операция завершена
+        thunkAPI.dispatch(setAppStatusAC({status: "succeeded"}))
+        return {id: param.todolistId}
+    } catch (e) {
+        const error = e as Error | AxiosError<{ error: string }>
+        return thunkAPI.rejectWithValue(null)
+    }
+})
+
+export const addTodolistTC = createAsyncThunk("todolists/addTodolist", async (param: { title: string }, thunkAPI) => {
+    thunkAPI.dispatch(setAppStatusAC({status: "loading"}))
+    const res = await todolistsAPI.createTodolist(param.title)
+    try {
+        // thunkAPI.dispatch(addTodolistAC({todolist: res.data.data.item}))
+        thunkAPI.dispatch(setAppStatusAC({status: "succeeded"}))
+        return {todolist: res.data.data.item}
+    } catch (e) {
+        const error = e as Error | AxiosError<{ error: string }>
+        return thunkAPI.rejectWithValue(null)
+    }
+})
+
+export const changeTodolistTitleTC = createAsyncThunk("todolists/changeTodolistTitle", async (param: {
+    id: string,
+    title: string
+}, thunkAPI) => {
+
+    const res = await todolistsAPI.updateTodolist(param.id, param.title)
+        try {
+            // thunkAPI.dispatch(changeTodolistTitleAC({id: param.id, title: param.title}))
+            return {id: param.id, title: param.title}
+        }catch (e) {
+            const error = e as Error | AxiosError<{ error: string }>
+            return thunkAPI.rejectWithValue(null)
+        }
+})
 
 const slice = createSlice({
     name: "todolists",
-    initialState: initialState,
+    initialState: [] as Array<TodolistDomainType>,
     reducers: {
-        removeTodolistAC: (state, action: PayloadAction<{ id: string }>) => {
-            const index = state.findIndex(tl => tl.id === action.payload.id)
-            if(index > -1){
-                state.splice(index, 1)
-            }
-        },
-        addTodolistAC: (state, action: PayloadAction<{ todolist: TodolistType }>) => {
+        /*addTodolistAC: (state, action: PayloadAction<{ todolist: TodolistType }>) => {
             state.unshift({
                 ...action.payload.todolist,
                 filter: "all",
                 entityStatus: "idle"
             })
-        },
-        changeTodolistTitleAC: (state, action: PayloadAction<{ id: string, title: string }>) => {
+        },*/
+        /*changeTodolistTitleAC: (state, action: PayloadAction<{ id: string, title: string }>) => {
             const index = state.findIndex(tl => tl.id === action.payload.id)
             state[index].title = action.payload.title
-        },
+        },*/
         changeTodolistFilterAC: (state, action: PayloadAction<{ id: string, filter: FilterValuesType }>) => {
             const index = state.findIndex(tl => tl.id === action.payload.id)
             state[index].filter = action.payload.filter
@@ -35,30 +92,44 @@ const slice = createSlice({
             const index = state.findIndex(tl => tl.id === action.payload.id)
             state[index].entityStatus = action.payload.status
         },
-        setTodolistsAC: (state, action: PayloadAction<{ todolists: Array<TodolistType> }>) => {
+    },
+    extraReducers: builder => {
+        builder.addCase(fetchTodolistsTC.fulfilled, (state, action) => {
             return action.payload.todolists.map(tl => ({
                 ...tl,
                 filter: "all",
                 entityStatus: "idle"
             }))
-        },
-
+        })
+        builder.addCase(removeTodolistTC.fulfilled, (state, action) => {
+            const index = state.findIndex(tl => tl.id === action.payload.id)
+            if (index > -1) {
+                state.splice(index, 1)
+            }
+        })
+        builder.addCase(addTodolistTC.fulfilled, (state, action) => {
+            state.unshift({
+                ...action.payload.todolist,
+                filter: "all",
+                entityStatus: "idle"
+            })
+        })
+        builder.addCase(changeTodolistTitleTC.fulfilled, (state, action) => {
+            const index = state.findIndex(tl => tl.id === action.payload.id)
+            state[index].title = action.payload.title
+        })
     }
 })
 
 export const todolistsReducer = slice.reducer
 
 export const {
-    removeTodolistAC,
-    addTodolistAC,
-    changeTodolistTitleAC,
     changeTodolistFilterAC,
     changeTodolistEntityStatusAC,
-    setTodolistsAC
 } = slice.actions
 
 // thunks
-export const fetchTodolistsTC = () => {
+/*export const fetchTodolistsTC_ = () => {
     return (dispatch: AppDispatchType) => {
         dispatch(setAppStatusAC({status: "loading"}))
         todolistsAPI.getTodolists()
@@ -70,22 +141,25 @@ export const fetchTodolistsTC = () => {
                 handleServerNetworkError(error, dispatch);
             })
     }
-}
-export const removeTodolistTC = (todolistId: string) => {
+}*/
+/*export const removeTodolistTC_ = (todolistId: string) => {
     return (dispatch: AppDispatchType) => {
         //изменим глобальный статус приложения, чтобы вверху полоса побежала
         dispatch(setAppStatusAC({status: "loading"}))
         //изменим статус конкретного тудулиста, чтобы он мог задизеблить что надо
-        dispatch(changeTodolistEntityStatusAC({id:todolistId, status:"loading"}))
+        dispatch(changeTodolistEntityStatusAC({
+            id: todolistId,
+            status: "loading"
+        }))
         todolistsAPI.deleteTodolist(todolistId)
             .then((res) => {
-                dispatch(removeTodolistAC({id:todolistId}))
+                dispatch(removeTodolistAC({id: todolistId}))
                 //скажем глобально приложению, что асинхронная операция завершена
                 dispatch(setAppStatusAC({status: "succeeded"}))
             })
     }
-}
-export const addTodolistTC = (title: string) => {
+}*/
+/*export const addTodolistTC_ = (title: string) => {
     return (dispatch: AppDispatchType) => {
         dispatch(setAppStatusAC({status: "loading"}))
         todolistsAPI.createTodolist(title)
@@ -94,15 +168,15 @@ export const addTodolistTC = (title: string) => {
                 dispatch(setAppStatusAC({status: "succeeded"}))
             })
     }
-}
-export const changeTodolistTitleTC = (id: string, title: string) => {
+}*/
+/*export const changeTodolistTitleTC_ = (id: string, title: string) => {
     return (dispatch: AppDispatchType) => {
         todolistsAPI.updateTodolist(id, title)
             .then((res) => {
-                dispatch(changeTodolistTitleAC({id:id, title:title}))
+                dispatch(changeTodolistTitleAC({id: id, title: title}))
             })
     }
-}
+}*/
 
 export type TodolistDomainType = TodolistType & {
     filter: FilterValuesType
